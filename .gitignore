@@ -1,0 +1,57 @@
+# Java
+*.class
+*.log
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+hs_err_pid*
+replay_pid*
+
+# Gradle
+.gradle/
+**/build/
+
+# Gradle Wrapper
+!gradle/wrapper/gradle-wrapper.jar
+!gradle/wrapper/gradle-wrapper.properties
+
+# Gradle GUI Config
+gradle-app.setting
+.gradletasknamecache
+
+# Java Heap Dump
+*.hprof
+
+# Eclipse
+.project
+.classpath
+
+# IntelliJ
+*.iml
+.idea/
+
+# OS
+.DS_Store
+
+# Sensitive Information
+.env
+.env.*
+!.env.example
+
+# Node (추후 프론트 추가 대비)
+node_modules/
+
+# Docker
+**/docker-volume-data
+*.pid
+
+# Test Reports
+/test-output/
+
+# Bin folder (보통 Java Build 생성 시 생김)
+bin/
