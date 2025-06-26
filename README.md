@@ -1,0 +1,2 @@
+# MapleKiosk-mono
+mono-repo
