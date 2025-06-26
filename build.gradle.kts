@@ -1,14 +1,14 @@
 plugins {
-    id("org.springframework.boot") version "3.5.3" apply false
-    id("io.spring.dependency-management") version "1.1.7" apply false
-    kotlin("jvm") version "1.9.22" apply false
+  id("java") apply false
+  id("org.springframework.boot") version "3.5.3" apply false
+  id("io.spring.dependency-management") version "1.1.7" apply false
 }
 
 subprojects {
-    group = "ca.yw.maplekiosk"
-    version = "1.0.0"
+  group = "ca.yw.maplekiosk"
+  version = "1.0.0"
 
-    repositories {
-        mavenCentral()
-    }
+  repositories {
+    mavenCentral()
+  }
 }
