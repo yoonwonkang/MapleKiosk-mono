@@ -10,15 +10,16 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import ca.yw.maplekiosk.config.JwtConfig;
+import ca.yw.maplekiosk.enums.TokenType;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 
 public class JwtTokenProviderTest {
-  
+
   private static final String ORIGIN_SHOP_USER_NAME =  "shop01";
-  private static final String ORIGIN_SHOP_ROLE = "SHOP";
+  private static final TokenType ORIGIN_SHOP_ROLE = TokenType.SHOP;
   private JwtTokenProvider jwtTokenProvider;
   private static final String TEST_SECRET_KEY = "this-is-a-very-secure-and-long-secret-key-1234567890";
 
@@ -26,9 +27,8 @@ public class JwtTokenProviderTest {
   void setUp() {
       JwtConfig jwtConfig = new JwtConfig();
       jwtConfig.setSecret(TEST_SECRET_KEY);
-      jwtConfig.setAccessTokenExpirationSeconds(1);
-      jwtConfig.setRefreshTokenExpirationSeconds(1);
-      
+      jwtConfig.setAccessTokenExpirationSeconds(10);
+      jwtConfig.setRefreshTokenExpirationSeconds(10);
       jwtTokenProvider = new JwtTokenProvider(jwtConfig);
   }
 
@@ -42,13 +42,13 @@ public class JwtTokenProviderTest {
     Claims claims = jwtTokenProvider.getClaims(token);
     // when get name is not equal
     assertNotEquals(ORIGIN_SHOP_USER_NAME, claims.getSubject());
-    assertEquals(ORIGIN_SHOP_ROLE, claims.get("role"));
+    assertEquals(ORIGIN_SHOP_ROLE.name(), claims.get("role"));
   }
 
   @Test
   void createAccessToken_shouldReturnWrongRoleToken() {
     // wrong role
-    String wrongRole = "SHQP";
+    TokenType wrongRole = TokenType.KIOSK;
     String token = jwtTokenProvider.createAccessToken(ORIGIN_SHOP_USER_NAME, wrongRole);
 
     assertTrue(jwtTokenProvider.validateToken(token));
@@ -59,7 +59,8 @@ public class JwtTokenProviderTest {
   }
 
   @Test
-void validateToken_shouldReturnFalse_whenTokenIsExpired() {
+  void validateToken_shouldReturnFalse_whenTokenIsExpired() {
+
   Key key = Keys.hmacShaKeyFor(TEST_SECRET_KEY.getBytes(StandardCharsets.UTF_8));
     String expiredToken = Jwts.builder()
       .setSubject(ORIGIN_SHOP_USER_NAME)
@@ -94,7 +95,7 @@ void validateToken_shouldReturnFalse_whenTokenIsExpired() {
     assertTrue(jwtTokenProvider.validateToken(token));
     Claims claims = jwtTokenProvider.getClaims(token);
     assertEquals(ORIGIN_SHOP_USER_NAME, claims.getSubject());
-    assertEquals(ORIGIN_SHOP_ROLE, claims.get("role"));
+    assertEquals(ORIGIN_SHOP_ROLE.name(), claims.get("role"));
   }
 }
 
