@@ -5,6 +5,8 @@ import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 
 import ca.yw.maplekiosk.config.JwtConfig;
@@ -18,6 +20,8 @@ import lombok.RequiredArgsConstructor;
 @Component
 @RequiredArgsConstructor
 public class JwtTokenProvider {
+
+  private static final Logger log = LogManager.getLogger(JwtTokenProvider.class);
 
   private final JwtConfig jwtConfig;
 
@@ -62,10 +66,25 @@ public class JwtTokenProvider {
         .build()
         .parseClaimsJws(token);
         return true;
+    } catch (io.jsonwebtoken.security.SignatureException e) {
+      // 서명이 잘못된 경우
+      log.error("Invalid JWT signature: {}", e.getMessage());
+    } catch (io.jsonwebtoken.ExpiredJwtException e) {
+      // 토큰이 만료된 경우
+      log.error("Expired JWT token: {}", e.getMessage());
+    } catch (io.jsonwebtoken.MalformedJwtException e) {
+      // 토큰 형식이 잘못된 경우
+      log.error("Invalid JWT token format: {}", e.getMessage());
+    } catch (io.jsonwebtoken.UnsupportedJwtException e) {
+      // 지원하지 않는 토큰
+      log.error("Unsupported JWT token: {}", e.getMessage());
+    } catch (IllegalArgumentException e) {
+      // Claims가 비어있는 경우
+      log.error("JWT claims string is empty: {}", e.getMessage());
     } catch (Exception e) {
-      e.printStackTrace();
-        return false;
+      log.error("Unknown error while validating JWT token: {}", e.getMessage());
     }
+    return false;
   }
 
   public Claims getClaims(String token) {
