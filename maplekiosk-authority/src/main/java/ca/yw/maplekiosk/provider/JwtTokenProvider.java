@@ -8,6 +8,7 @@ import java.util.Date;
 import org.springframework.stereotype.Component;
 
 import ca.yw.maplekiosk.config.JwtConfig;
+import ca.yw.maplekiosk.enums.TokenType;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -33,20 +34,20 @@ public class JwtTokenProvider {
     return Keys.hmacShaKeyFor(jwtConfig.getSecret().getBytes(StandardCharsets.UTF_8));
   }
 
-  public String createAccessToken(String username, String role) {
+  public String createAccessToken(String username, TokenType tokenType) {
     return Jwts.builder()
       .setSubject(username)
-      .claim("role", role)
+      .claim("role", tokenType)
       .setIssuedAt(new Date())
       .setExpiration(new Date(System.currentTimeMillis() + jwtConfig.getAccessTokenExpirationSeconds() * milliSeconds))
       .signWith(key, SignatureAlgorithm.HS256)
       .compact();
   }
 
-  public String createRefreshToken(String username, String role) {
+  public String createRefreshToken(String username, TokenType tokenType) {
     return Jwts.builder()
       .setSubject(username)
-      .claim("role", role)
+      .claim("role", tokenType)
       .setIssuedAt(new Date())
       .setExpiration(new Date(System.currentTimeMillis() + jwtConfig.getRefreshTokenExpirationSeconds() * milliSeconds))
       .signWith(key, SignatureAlgorithm.HS256)
@@ -62,6 +63,7 @@ public class JwtTokenProvider {
         .parseClaimsJws(token);
         return true;
     } catch (Exception e) {
+      e.printStackTrace();
         return false;
     }
   }
