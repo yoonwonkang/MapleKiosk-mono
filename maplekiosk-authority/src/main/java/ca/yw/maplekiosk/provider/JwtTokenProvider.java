@@ -41,7 +41,7 @@ public class JwtTokenProvider {
   public String generateToken(String username, TokenType tokenType, long expirationSeconds) {
     return Jwts.builder()
         .setSubject(username)
-        .claim("role", tokenType)
+        .claim("role", tokenType.name())
         .setIssuedAt(new Date())
         .setExpiration(new Date(System.currentTimeMillis() + expirationSeconds * MILLISECONDS_PER_SECOND))
         .signWith(key, SignatureAlgorithm.HS256)
