@@ -25,7 +25,7 @@ public class JwtTokenProvider {
 
   private final JwtConfig jwtConfig;
 
-  private final Integer milliSeconds = 1000;
+  private static final Integer MILLISECONDS_PER_SECOND = 1000;
 
   private final Key key;
 
@@ -38,24 +38,22 @@ public class JwtTokenProvider {
     return Keys.hmacShaKeyFor(jwtConfig.getSecret().getBytes(StandardCharsets.UTF_8));
   }
 
-  public String createAccessToken(String username, TokenType tokenType) {
+  public String generateToken(String username, TokenType tokenType, long expirationSeconds) {
     return Jwts.builder()
-      .setSubject(username)
-      .claim("role", tokenType)
-      .setIssuedAt(new Date())
-      .setExpiration(new Date(System.currentTimeMillis() + jwtConfig.getAccessTokenExpirationSeconds() * milliSeconds))
-      .signWith(key, SignatureAlgorithm.HS256)
-      .compact();
+        .setSubject(username)
+        .claim("role", tokenType)
+        .setIssuedAt(new Date())
+        .setExpiration(new Date(System.currentTimeMillis() + expirationSeconds * MILLISECONDS_PER_SECOND))
+        .signWith(key, SignatureAlgorithm.HS256)
+        .compact();
+}
+
+  public String generateAccessToken(String username, TokenType tokenType) {
+    return generateToken(username, tokenType, jwtConfig.getAccessTokenExpirationSeconds());
   }
 
-  public String createRefreshToken(String username, TokenType tokenType) {
-    return Jwts.builder()
-      .setSubject(username)
-      .claim("role", tokenType)
-      .setIssuedAt(new Date())
-      .setExpiration(new Date(System.currentTimeMillis() + jwtConfig.getRefreshTokenExpirationSeconds() * milliSeconds))
-      .signWith(key, SignatureAlgorithm.HS256)
-      .compact();
+  public String generateRefreshToken(String username, TokenType tokenType) {
+    return generateToken(username, tokenType, jwtConfig.getRefreshTokenExpirationSeconds());
   }
 
   public boolean validateToken(String token) {
