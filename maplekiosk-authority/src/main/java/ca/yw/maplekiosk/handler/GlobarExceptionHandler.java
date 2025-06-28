@@ -6,7 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import ca.yw.maplekiosk.dto.http.Response;
+import ca.yw.maplekiosk.dto.common.ErrorResponse;
 import ca.yw.maplekiosk.exception.JwtTokenException;
 
 @RestControllerAdvice
@@ -19,6 +19,11 @@ public class GlobarExceptionHandler {
         log.error("JWT Exception: {}", e.getMessage());
         return ResponseEntity
                 .badRequest()
-                .body(new Response.ErrorResponse(e.getErrorCode().name(), e.getMessage()));
+                .body(
+                  ErrorResponse.builder()
+                  .code(e.getErrorCode().name())
+                  .message(e.getMessage())
+                  .build()
+                );
     }
 }

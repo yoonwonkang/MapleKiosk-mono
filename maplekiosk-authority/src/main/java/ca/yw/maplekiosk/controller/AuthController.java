@@ -6,8 +6,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import ca.yw.maplekiosk.dto.http.Request.LoginRequest;
-import ca.yw.maplekiosk.dto.http.Response.LoginResponse;
+import ca.yw.maplekiosk.dto.auth.request.LoginRequest;
+import ca.yw.maplekiosk.dto.auth.response.LoginResponse;
 import ca.yw.maplekiosk.service.AuthService;
 import lombok.RequiredArgsConstructor;
 
