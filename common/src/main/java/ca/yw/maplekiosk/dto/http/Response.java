@@ -7,15 +7,14 @@ public class Response {
 
   @Getter
   @AllArgsConstructor
-  public
-  static class ErrorResponse {
+  public static class ErrorResponse {
     private String code;
     private String message;
   }
 
   @Getter
   @AllArgsConstructor
-  public class LoginResponse {
+  public static class LoginResponse {
     private String accessToken;
     private String refreshToken;
   }
