@@ -34,8 +34,8 @@ dependencies {
   // implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 
   // Lombok
-  compileOnly("org.projectlombok:lombok")
-  annotationProcessor("org.projectlombok:lombok")
+  compileOnly("org.projectlombok:lombok:1.18.32")
+  annotationProcessor("org.projectlombok:lombok:1.18.32")
 
   runtimeOnly("org.mariadb.jdbc:mariadb-java-client:3.3.2")
   testImplementation("org.springframework.boot:spring-boot-starter-test") {
