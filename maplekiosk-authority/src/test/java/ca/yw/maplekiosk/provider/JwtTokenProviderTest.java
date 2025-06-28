@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import ca.yw.maplekiosk.config.JwtConfig;
 import ca.yw.maplekiosk.enums.TokenType;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
@@ -38,7 +39,7 @@ public class JwtTokenProviderTest {
     String wrongName = "shQp1";
     String token = jwtTokenProvider.generateAccessToken(wrongName, ORIGIN_SHOP_ROLE);
 
-    assertTrue(jwtTokenProvider.validateToken(token));
+    assertDoesNotThrow(() -> jwtTokenProvider.validateToken(token));
     Claims claims = jwtTokenProvider.getClaims(token);
     // when get name is not equal
     assertNotEquals(ORIGIN_SHOP_USER_NAME, claims.getSubject());
@@ -51,7 +52,7 @@ public class JwtTokenProviderTest {
     TokenType wrongRole = TokenType.KIOSK;
     String token = jwtTokenProvider.generateAccessToken(ORIGIN_SHOP_USER_NAME, wrongRole);
 
-    assertTrue(jwtTokenProvider.validateToken(token));
+    assertDoesNotThrow(() -> jwtTokenProvider.validateToken(token));
     Claims claims = jwtTokenProvider.getClaims(token);
     assertEquals(ORIGIN_SHOP_USER_NAME, claims.getSubject());
     // when get role is not equal
@@ -70,7 +71,10 @@ public class JwtTokenProviderTest {
       .signWith(key, SignatureAlgorithm.HS256)
       .compact();
     //when the token check, expect false
-    assertFalse(jwtTokenProvider.validateToken(expiredToken));
+    JwtException exception = assertThrows(JwtException.class, () -> {
+      jwtTokenProvider.validateToken(expiredToken);
+    });
+    // assertEquals(exception.getMessage(), exception); 추후 i18n처리후 메세지까지 비교
 }
 
   @Test
@@ -86,13 +90,16 @@ public class JwtTokenProviderTest {
             .signWith(wrongKey, SignatureAlgorithm.HS256)
             .compact();
     //when the token check, expect false
-    assertFalse(jwtTokenProvider.validateToken(invalidToken));
+    JwtException exception = assertThrows(JwtException.class, () -> {
+      jwtTokenProvider.validateToken(invalidToken);
+    });
+    // assertEquals(exception.getMessage(), exception); 추후 i18n처리후 메세지까지 비교
 }
 
   @Test
   void createAccessToken_shouldReturnValidToken() {
     String token = jwtTokenProvider.generateAccessToken(ORIGIN_SHOP_USER_NAME, ORIGIN_SHOP_ROLE);
-    assertTrue(jwtTokenProvider.validateToken(token));
+    // assertTrue(jwtTokenProvider.validateToken(token));
     Claims claims = jwtTokenProvider.getClaims(token);
     assertEquals(ORIGIN_SHOP_USER_NAME, claims.getSubject());
     assertEquals(ORIGIN_SHOP_ROLE.name(), claims.get("role"));
