@@ -10,11 +10,16 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 
 import ca.yw.maplekiosk.config.JwtConfig;
+import ca.yw.maplekiosk.enums.ErrorCode;
 import ca.yw.maplekiosk.enums.TokenType;
+import ca.yw.maplekiosk.exception.JwtTokenException;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import io.jsonwebtoken.security.SignatureException;
 import lombok.RequiredArgsConstructor;
 
 @Component
@@ -56,33 +61,19 @@ public class JwtTokenProvider {
     return generateToken(username, tokenType, jwtConfig.getRefreshTokenExpirationSeconds());
   }
 
-  public boolean validateToken(String token) {
+  public void validateToken(String token) {
     try {
-
-        Jwts.parserBuilder()
-        .setSigningKey(key)
-        .build()
-        .parseClaimsJws(token);
-        return true;
-    } catch (io.jsonwebtoken.security.SignatureException e) {
-      // 서명이 잘못된 경우
-      log.error("Invalid JWT signature: {}", e.getMessage());
-    } catch (io.jsonwebtoken.ExpiredJwtException e) {
-      // 토큰이 만료된 경우
-      log.error("Expired JWT token: {}", e.getMessage());
-    } catch (io.jsonwebtoken.MalformedJwtException e) {
-      // 토큰 형식이 잘못된 경우
-      log.error("Invalid JWT token format: {}", e.getMessage());
-    } catch (io.jsonwebtoken.UnsupportedJwtException e) {
-      // 지원하지 않는 토큰
-      log.error("Unsupported JWT token: {}", e.getMessage());
-    } catch (IllegalArgumentException e) {
-      // Claims가 비어있는 경우
-      log.error("JWT claims string is empty: {}", e.getMessage());
+      Jwts.parserBuilder()
+      .setSigningKey(key)
+      .build()
+      .parseClaimsJws(token);
+    } catch (ExpiredJwtException e) {
+        throw new JwtTokenException(ErrorCode.TOKEN_EXPIRED, e);
+    } catch (MalformedJwtException | SignatureException e) {
+        throw new JwtTokenException(ErrorCode.INVALID_TOKEN, e);
     } catch (Exception e) {
-      log.error("Unknown error while validating JWT token: {}", e.getMessage());
+        throw new JwtTokenException(ErrorCode.UNKNOWN_ERROR, e);
     }
-    return false;
   }
 
   public Claims getClaims(String token) {
