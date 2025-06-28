@@ -1,5 +1,5 @@
 plugins {
-    id("java")
+    id("java-library")
 }
 
 java {
@@ -9,7 +9,7 @@ java {
 
 dependencies {
     // Log4j2 의존성만 관리
-    implementation("org.springframework.boot:spring-boot-starter-log4j2")
+    api("org.springframework.boot:spring-boot-starter-log4j2")
 }
 
 tasks.withType<Test> {
