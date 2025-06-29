@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import ca.yw.maplekiosk.dto.auth.request.LoginRequest;
 import ca.yw.maplekiosk.dto.auth.response.LoginResponse;
 import ca.yw.maplekiosk.enums.TokenType;
+import ca.yw.maplekiosk.exception.UserNotFoundException;
 import ca.yw.maplekiosk.provider.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 
@@ -16,7 +17,7 @@ public class AuthService {
     public LoginResponse login(LoginRequest loginRequest) {
     // dummy validate check
     if (!loginRequest.getUsername().equals("shop01") || !loginRequest.getPassword().equals("password")) {
-      throw new IllegalArgumentException("Invalid username or password");
+      throw new UserNotFoundException("user not found");
     }
 
     String accessToken = jwtTokenProvider.generateAccessToken(loginRequest.getUsername(), TokenType.SHOP);
