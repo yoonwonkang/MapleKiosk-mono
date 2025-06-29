@@ -23,6 +23,7 @@ dependencies {
 
   implementation("org.springframework.boot:spring-boot-starter-web") {
     exclude(group = "org.springframework.boot", module = "spring-boot-starter-logging")
+    exclude(group = "org.apache.logging.log4j", module = "log4j-to-slf4j")
   }
   implementation("org.springframework.boot:spring-boot-starter-security")
 
@@ -41,11 +42,14 @@ dependencies {
   testImplementation("org.springframework.boot:spring-boot-starter-test") {
     exclude(group = "org.springframework.boot", module = "spring-boot-starter-logging")
     exclude(group = "org.apache.logging.log4j", module = "log4j-to-slf4j")
+    exclude(group = "ch.qos.logback")
   }
 }
 
 configurations.all {
-    exclude(group = "org.apache.logging.log4j", module = "log4j-to-slf4j")
+  exclude(group = "org.apache.logging.log4j", module = "log4j-to-slf4j")
+  exclude(group = "org.springframework.boot", module = "spring-boot-starter-logging")
+  exclude(group = "ch.qos.logback")
 }
 
 tasks.withType<Test> {
