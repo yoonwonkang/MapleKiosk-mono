@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 
 import ca.yw.maplekiosk.config.JwtConfig;
 import ca.yw.maplekiosk.enums.TokenType;
-import ca.yw.maplekiosk.exception.JwtTokenException;
+import ca.yw.maplekiosk.exception.AuthException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -71,7 +71,7 @@ public class JwtTokenProviderTest {
       .signWith(key, SignatureAlgorithm.HS256)
       .compact();
     //when the token check, expect false
-    JwtTokenException exception = assertThrows(JwtTokenException.class, () -> {
+    AuthException exception = assertThrows(AuthException.class, () -> {
       jwtTokenProvider.validateToken(expiredToken);
     });
     // assertEquals(exception.getMessage(), exception); 추후 i18n처리후 메세지까지 비교
@@ -90,7 +90,7 @@ public class JwtTokenProviderTest {
             .signWith(wrongKey, SignatureAlgorithm.HS256)
             .compact();
     //when the token check, expect false
-    JwtTokenException exception = assertThrows(JwtTokenException.class, () -> {
+    AuthException exception = assertThrows(AuthException.class, () -> {
       jwtTokenProvider.validateToken(invalidToken);
     });
     // assertEquals(exception.getMessage(), exception); 추후 i18n처리후 메세지까지 비교
