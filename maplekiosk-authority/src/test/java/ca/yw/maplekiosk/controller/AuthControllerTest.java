@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -16,6 +17,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import ca.yw.maplekiosk.dto.auth.request.LoginRequest;
 import ca.yw.maplekiosk.dto.auth.response.LoginResponse;
+import ca.yw.maplekiosk.enums.ErrorCode;
+import ca.yw.maplekiosk.exception.AuthException;
 import ca.yw.maplekiosk.service.AuthService;
 
 
@@ -44,11 +47,11 @@ public class AuthControllerTest {
     // Given wrong user name
     LoginRequest loginRequest = new LoginRequest("invalidUser", "password");
 
-    // when(authService.login(any(LoginRequest.class)))
-    //     .thenThrow(new UserNotFoundException("User not found"));
+    when(authService.login(any(LoginRequest.class)))
+        .thenThrow(new AuthException(HttpStatus.NOT_FOUND, ErrorCode.USER_NOT_FOUND));
 
     // When & Then
-    mockMvc.perform(post("/api/v1/auth/login")
+    mockMvc.perform(post("/api/auth/login")
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(loginRequest)))
         .andExpect(status().isNotFound());
