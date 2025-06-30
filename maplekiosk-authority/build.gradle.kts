@@ -61,3 +61,9 @@ configurations.all {
 tasks.withType<Test> {
 	useJUnitPlatform()
 }
+
+tasks.named<ProcessResources>("processResources") {
+    from(project(":maplekiosk-logging").layout.projectDirectory.dir("src/main/resources")) {
+        include("log4j2-spring.xml")
+    }
+}
