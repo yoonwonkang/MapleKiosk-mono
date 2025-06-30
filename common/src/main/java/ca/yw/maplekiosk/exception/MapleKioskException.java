@@ -9,4 +9,13 @@ public class MapleKioskException extends RuntimeException {
       super(errorCode.getMessage(), cause);
       this.errorCode = errorCode;
   }
+
+  public MapleKioskException(ErrorCode errorCode) {
+    super(errorCode.getMessage());
+    this.errorCode = errorCode;
+  }
+
+  public ErrorCode getErrorCode() {
+    return this.errorCode;
+  }
 }
