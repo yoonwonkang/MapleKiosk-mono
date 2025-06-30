@@ -19,6 +19,7 @@ import ca.yw.maplekiosk.dto.auth.request.LoginRequest;
 import ca.yw.maplekiosk.dto.auth.response.LoginResponse;
 import ca.yw.maplekiosk.enums.ErrorCode;
 import ca.yw.maplekiosk.exception.AuthException;
+import ca.yw.maplekiosk.provider.JwtTokenProvider;
 import ca.yw.maplekiosk.service.AuthService;
 
 
@@ -33,6 +34,9 @@ public class AuthControllerTest {
 
   @MockitoBean
   private AuthService authService;
+
+  @MockitoBean
+  private JwtTokenProvider jwtTokenProvider;
 
   private static final String USER_NAME = "shop01";
   private static final String USER_PASS = "shop-pass";
