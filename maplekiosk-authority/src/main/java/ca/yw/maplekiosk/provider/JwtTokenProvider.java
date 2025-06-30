@@ -7,12 +7,13 @@ import java.util.Date;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import ca.yw.maplekiosk.config.JwtConfig;
 import ca.yw.maplekiosk.enums.ErrorCode;
 import ca.yw.maplekiosk.enums.TokenType;
-import ca.yw.maplekiosk.exception.JwtTokenException;
+import ca.yw.maplekiosk.exception.AuthException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
@@ -68,12 +69,11 @@ public class JwtTokenProvider {
       .build()
       .parseClaimsJws(token);
     } catch (ExpiredJwtException e) {
-        throw new JwtTokenException(ErrorCode.TOKEN_EXPIRED, e);
+        throw new AuthException(HttpStatus.BAD_REQUEST, ErrorCode.TOKEN_EXPIRED, e);
     } catch (MalformedJwtException | SignatureException e) {
-        throw new JwtTokenException(ErrorCode.INVALID_TOKEN, e);
+      throw new AuthException(HttpStatus.BAD_REQUEST, ErrorCode.INVALID_TOKEN, e);
     } catch (Exception e) {
-        throw new JwtTokenException(ErrorCode.UNKNOWN_ERROR, e);
-    }
+      throw new AuthException(HttpStatus.BAD_REQUEST, ErrorCode.UNKNOWN_ERROR, e);    }
   }
 
   public Claims getClaims(String token) {
