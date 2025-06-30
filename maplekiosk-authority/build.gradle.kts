@@ -37,6 +37,9 @@ dependencies {
   //swagger
   implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0")
 
+  //for .env -> temporary
+  implementation ("me.paulschwarz:spring-dotenv:3.0.0")
+
   // Lombok
   compileOnly("org.projectlombok:lombok:1.18.32")
   annotationProcessor("org.projectlombok:lombok:1.18.32")
@@ -58,4 +61,3 @@ configurations.all {
 tasks.withType<Test> {
 	useJUnitPlatform()
 }
-
