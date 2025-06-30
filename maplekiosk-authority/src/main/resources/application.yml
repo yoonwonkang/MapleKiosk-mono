@@ -1,3 +1,6 @@
+spring:
+  application:
+    name: maplekiosk-authority
 server:
   port: 8081
 

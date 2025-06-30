@@ -1,7 +1,54 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration status="WARN" monitorInterval="30">
   <Properties>
+    <!-- 공통 패턴 -->
     <Property name="LOG_PATTERN">%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n</Property>
+    <!-- 로그 파일 경로: logs/{프로젝트이름} -->
+    <Property name="LOG_DIR">logs/${spring:spring.application.name}</Property>
   </Properties>
-  <Include file="log4j2-spring-${spring.profiles.active}.xml" />
+
+  <!-- Appenders -->
+  <Appenders>
+    <!-- 콘솔 로그 -->
+    <Console name="Console" target="SYSTEM_OUT">
+      <PatternLayout pattern="${LOG_PATTERN}" />
+    </Console>
+
+    <!-- local, dev: 단순 파일 저장 -->
+    <File name="FileAppender" fileName="${LOG_DIR}/local.log" append="true">
+      <PatternLayout pattern="${LOG_PATTERN}" />
+    </File>
+
+    <!-- prod: RollingFile (하루 단위 & 10MB 단위) -->
+    <RollingFile name="RollingFileAppender"
+                fileName="${LOG_DIR}/app.log"
+                filePattern="${LOG_DIR}/app-%d{yyyy-MM-dd}-%i.log.gz">
+      <PatternLayout pattern="${LOG_PATTERN}" />
+      <Policies>
+        <!-- 하루에 한번 -->
+        <TimeBasedTriggeringPolicy interval="1" />
+        <!-- 10MB 넘어가면 롤링 -->
+        <SizeBasedTriggeringPolicy size="10MB" />
+      </Policies>
+      <DefaultRolloverStrategy max="10" />
+    </RollingFile>
+  </Appenders>
+
+  <!-- Loggers (Profile 별 분리) -->
+  <Loggers>
+    <!-- local, dev: Console + FileAppender -->
+    <SpringProfile name="local,dev">
+      <Root level="DEBUG">
+        <AppenderRef ref="Console" />
+        <AppenderRef ref="FileAppender" />
+      </Root>
+    </SpringProfile>
+
+    <!-- prod: RollingFileAppender만 사용 -->
+    <SpringProfile name="prod">
+      <Root level="INFO">
+        <AppenderRef ref="RollingFileAppender" />
+      </Root>
+    </SpringProfile>
+  </Loggers>
 </Configuration>
