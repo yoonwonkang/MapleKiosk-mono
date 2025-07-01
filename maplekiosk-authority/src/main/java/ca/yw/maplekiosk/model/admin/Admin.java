@@ -5,13 +5,11 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import lombok.Builder;
 import lombok.Getter;
 
 @Entity
 @Table(name = "admin")
 @Getter
-@Builder
 public class Admin {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,4 +25,17 @@ public class Admin {
     this.password = newPassword;
   }
 
+  private Admin(String adminName, String password, String role) {
+    this.adminName = adminName;
+    this.password = password;
+    this.role = role;
+  }
+
+  public static Admin createAdmin(String adminName, String password, String role) {
+    // can add validation
+    if(role == null) {
+      role = "ROLE_ADMIN";
+    }
+    return new Admin(adminName, password, role);
+  }
 }

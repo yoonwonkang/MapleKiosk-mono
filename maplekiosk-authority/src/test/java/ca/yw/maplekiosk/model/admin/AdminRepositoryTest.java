@@ -22,7 +22,7 @@ public class AdminRepositoryTest {
     String name = "test";
     String password = "test";
 
-    Admin admin = Admin.builder().adminName(name).password(password).build();
+    Admin admin = Admin.createAdmin(name, password, null);
     adminRepository.save(admin);
 
     Optional<Admin> foundOne = adminRepository.findByAdminName(name);
@@ -47,7 +47,9 @@ public class AdminRepositoryTest {
     String oldPassword = "old";
     String newPassword = "new";
 
-    Admin admin = adminRepository.save(Admin.builder().adminName(adminName).password(oldPassword).build());
+    Admin admin = adminRepository.save(
+      Admin.createAdmin(adminName, oldPassword, null)
+    );
 
     admin.setPassword(newPassword);
     adminRepository.save(admin);

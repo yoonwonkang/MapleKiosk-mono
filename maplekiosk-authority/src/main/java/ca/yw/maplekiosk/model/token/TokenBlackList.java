@@ -16,7 +16,6 @@ import lombok.Getter;
 @Entity
 @Table(name = "token_black_list")
 @Getter
-@Builder
 public class TokenBlackList {
 
     @Id
@@ -35,4 +34,17 @@ public class TokenBlackList {
     private TokenType tokenType; // ACCESS, REFRESH
 
     private Long ownerId; // Optional: admin_id, shop_id 등
+
+    private TokenBlackList(String token, LocalDateTime expiredAt, LocalDateTime createdAt, String reason, TokenType tokenType, Long ownerId) {
+      this.token = token;
+      this.expiredAt = expiredAt;
+      this.createdAt = createdAt;
+      this.reason = reason;
+      this.tokenType = tokenType;
+      this.ownerId = ownerId;
+    }
+
+    public static TokenBlackList createTokenBlackList(String token, LocalDateTime expiredAt, LocalDateTime createdAt, String reason, TokenType tokenType, Long ownerId) {
+      return new TokenBlackList(token, expiredAt, createdAt, reason, tokenType, ownerId);
+    }
 }

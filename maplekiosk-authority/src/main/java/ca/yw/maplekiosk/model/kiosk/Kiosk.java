@@ -11,7 +11,6 @@ import lombok.Getter;
 @Entity
 @Table(name = "kiosk")
 @Getter
-@Builder
 public class Kiosk {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,4 +21,14 @@ public class Kiosk {
   private String kioskName;
 
   private String password;
+
+  private Kiosk(Long shopId, String kioskName, String password) {
+    this.shopId = shopId;
+    this.kioskName = kioskName;
+    this.password = password;
+  }
+
+  public static Kiosk createKiosk(Long shopId, String kioskName, String password) {
+    return new Kiosk(shopId, kioskName, password);
+  }
 }
