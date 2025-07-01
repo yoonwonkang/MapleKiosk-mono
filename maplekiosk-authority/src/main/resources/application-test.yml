@@ -11,7 +11,8 @@ spring:
       ddl-auto: create
     show-sql: true
     properties:
-      hibernate.format_sql: true
+      hibernate:
+        format_sql: true
 
 jwt:
   secret: dummy-test-secret-key-test-for
