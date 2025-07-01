@@ -1,0 +1,27 @@
+package ca.yw.maplekiosk.model.shop;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import lombok.Builder;
+import lombok.Getter;
+
+@Entity
+@Table(name = "shop")
+@Getter
+@Builder
+public class Shop {
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long shopId;
+
+  private String shopeName;
+
+  private String password;
+
+  private String username;
+
+  private String apiKey;
+}
