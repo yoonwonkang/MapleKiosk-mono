@@ -50,6 +50,7 @@ dependencies {
     exclude(group = "org.apache.logging.log4j", module = "log4j-to-slf4j")
     exclude(group = "ch.qos.logback")
   }
+  testImplementation("com.h2database:h2")
 }
 
 configurations.all {
