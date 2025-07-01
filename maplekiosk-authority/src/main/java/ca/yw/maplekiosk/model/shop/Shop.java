@@ -21,7 +21,5 @@ public class Shop {
 
   private String password;
 
-  private String username;
-
   private String apiKey;
 }

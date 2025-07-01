@@ -21,7 +21,5 @@ public class Kiosk {
 
   private String kioskName;
 
-  private String username;
-
   private String password;
 }
