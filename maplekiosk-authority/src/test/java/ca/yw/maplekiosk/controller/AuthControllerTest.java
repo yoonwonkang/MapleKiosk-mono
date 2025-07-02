@@ -55,7 +55,7 @@ public class AuthControllerTest {
         .thenThrow(new AuthException(HttpStatus.NOT_FOUND, ErrorCode.USER_NOT_FOUND));
 
     // When & Then
-    mockMvc.perform(post("/api/auth/login")
+    mockMvc.perform(post("/api/v1/auth/login")
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(loginRequest)))
         .andExpect(status().isNotFound());
@@ -78,7 +78,7 @@ public class AuthControllerTest {
           .thenReturn(loginResponse);
 
       // When expect success
-      mockMvc.perform(post("/api/auth/login")
+      mockMvc.perform(post("/api/v1/auth/login")
                       .contentType(MediaType.APPLICATION_JSON)
                       .content(objectMapper.writeValueAsString(loginRequest)))
               .andExpect(status().isOk())
