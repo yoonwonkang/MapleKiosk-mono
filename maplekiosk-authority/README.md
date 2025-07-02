@@ -38,3 +38,8 @@
   "exp": 1622592000
 }
 ```
+
+
+
+## V2
+- token manage with redis
