@@ -105,6 +105,8 @@ public class AuthControllerTest {
     .andExpect(status().isNotFound());
     // .andExpect(jsonPath("$.code").value("USER_NOT_FOUND"))
     // .andExpect(jsonPath("$.message").value("User not found"));
+
+    verify(authService, times(1)).login(eq(type), any(LoginRequest.class));
   }
 
   @Test
