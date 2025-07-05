@@ -71,11 +71,11 @@ public class ShopLoginServiceTest {
     String refreshToken = "refresh-token";
 
     LoginRequest request = new LoginRequest(username, password);
-    Shop shop = Shop.createShop(null, username, password);
+    Shop shop = Shop.createShop(username, password, "test");
 
     when(shopRepository.findByShopName(username)).thenReturn(Optional.of(shop));
-    when(jwtTokenProvider.generateAccessToken(username, TokenType.KIOSK)).thenReturn(accessToken);
-    when(jwtTokenProvider.generateRefreshToken(username, TokenType.KIOSK)).thenReturn(refreshToken);
+    when(jwtTokenProvider.generateAccessToken(username, TokenType.SHOP)).thenReturn(accessToken);
+    when(jwtTokenProvider.generateRefreshToken(username, TokenType.SHOP)).thenReturn(refreshToken);
 
     // When
     LoginResponse response = shopLoginService.login(request);
@@ -85,8 +85,8 @@ public class ShopLoginServiceTest {
     assertThat(response.getRefreshToken()).isEqualTo(refreshToken);
 
     verify(shopRepository, times(1)).findByShopName(username);
-    verify(jwtTokenProvider, times(1)).generateAccessToken(username, TokenType.KIOSK);
-    verify(jwtTokenProvider, times(1)).generateRefreshToken(username, TokenType.KIOSK);
+    verify(jwtTokenProvider, times(1)).generateAccessToken(username, TokenType.SHOP);
+    verify(jwtTokenProvider, times(1)).generateRefreshToken(username, TokenType.SHOP);
   }
 
 }
