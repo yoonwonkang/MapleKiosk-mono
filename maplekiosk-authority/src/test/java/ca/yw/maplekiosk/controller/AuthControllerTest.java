@@ -132,4 +132,22 @@ public class AuthControllerTest {
 
       verify(authService, times(1)).login(eq(type), any(LoginRequest.class));
   }
+
+  @Test
+  @DisplayName("fail_login_when_request_is_invalid")
+  void login_fail_when_request_is_invalid() throws Exception {
+    // Given: empty user name;
+    String type = "KIOSK";
+    LoginRequest loginRequest = new LoginRequest("", USER_PASS);
+
+    // When & Then: 요청 실패를 기대
+    mockMvc.perform(post("/api/v1/auth/login/" + type)
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(objectMapper.writeValueAsString(loginRequest)))
+      .andExpect(status().isBadRequest())
+      .andExpect(jsonPath("$.code").value("INVALID_REQUEST"))  // 글로벌 핸들러에서 적절히 설정
+      .andExpect(jsonPath("$.message").exists());              // 에러 메시지가 있는지만 확인
+
+    verify(authService, times(0)).login(any(), any());  // 아예 서비스 호출도 안 해야 함
+  }
 }
