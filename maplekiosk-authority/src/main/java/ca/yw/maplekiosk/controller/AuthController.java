@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import ca.yw.maplekiosk.dto.auth.request.LoginRequest;
 import ca.yw.maplekiosk.dto.auth.response.LoginResponse;
 import ca.yw.maplekiosk.service.AuthIntegrationService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -20,7 +21,7 @@ public class AuthController {
   private final AuthIntegrationService authService;
 
   @PostMapping("/login/{type}")
-  public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest, @PathVariable String type) {
+  public ResponseEntity<LoginResponse> login(@RequestBody @Valid LoginRequest loginRequest, @PathVariable String type) {
     return ResponseEntity.ok(authService.login(type, loginRequest));
   }
 }
