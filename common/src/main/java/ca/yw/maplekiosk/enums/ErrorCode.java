@@ -9,7 +9,8 @@ public enum ErrorCode {
   TOKEN_EXPIRED("AUTH", "003", "토큰이 만료되었습니다."),
   INVALID_TOKEN("AUTH", "004", "토큰이 유효하지 않습니다."),
   UNKNOWN_ERROR("AUTH", "005", "확인이 되지 않는 에러입니다."),
-  INVALID_USER_TYPE("AUTH", "006", "잘못된 유저타입 접근");
+  INVALID_USER_TYPE("AUTH", "006", "잘못된 유저타입 접근"),
+  INVALID_REQUEST("AUTH", "007", "잘못된 요청");
 
   private final String service;
   private final String code;
