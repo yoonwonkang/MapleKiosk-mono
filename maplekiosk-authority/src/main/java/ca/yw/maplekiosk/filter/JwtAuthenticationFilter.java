@@ -9,6 +9,10 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import ca.yw.maplekiosk.dto.common.ErrorResponse;
+import ca.yw.maplekiosk.exception.AuthException;
 import ca.yw.maplekiosk.provider.JwtTokenProvider;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
@@ -27,18 +31,29 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
   protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
       throws ServletException, IOException {
     String token = resolveToken(request);
-    if (token != null) {
-      jwtTokenProvider.validateToken(token);
-      Claims claims = jwtTokenProvider.getClaims(token);
+    try{
+      if (token != null) {
+        jwtTokenProvider.validateToken(token);
+        Claims claims = jwtTokenProvider.getClaims(token);
 
-      UsernamePasswordAuthenticationToken authentication =
-      new UsernamePasswordAuthenticationToken(claims.getSubject(), null, null);
+        UsernamePasswordAuthenticationToken authentication =
+        new UsernamePasswordAuthenticationToken(claims.getSubject(), null, null);
 
-      authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+        authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
-      SecurityContextHolder.getContext().setAuthentication(authentication);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+      }
+    } catch (AuthException e) {
+      response.setStatus(e.getStatus().value());
+        response.setContentType("application/json");
+        response.getWriter().write(new ObjectMapper().writeValueAsString(
+            ErrorResponse.builder()
+              .code(e.getErrorCode().name())
+              .message(e.getMessage())
+              .build()
+        ));
+        return;
     }
-
     filterChain.doFilter(request, response);
   }
 
