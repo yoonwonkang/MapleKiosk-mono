@@ -5,12 +5,12 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -20,6 +20,7 @@ import org.springframework.web.context.WebApplicationContext;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import ca.yw.maplekiosk.config.SpringSecurityConfig;
 import ca.yw.maplekiosk.dto.auth.request.LoginRequest;
 import ca.yw.maplekiosk.dto.auth.response.LoginResponse;
 import ca.yw.maplekiosk.enums.ErrorCode;
@@ -29,12 +30,14 @@ import ca.yw.maplekiosk.service.AuthIntegrationService;
 import jakarta.servlet.http.HttpServletRequest;
 
 @WebMvcTest(AuthController.class)
+@Import(SpringSecurityConfig.class)
 @AutoConfigureMockMvc(addFilters = true)
 public class AuthControllerTest {
 
   @Autowired
   private WebApplicationContext context;
 
+  @Autowired
   private MockMvc mockMvc;
 
   @MockitoBean
@@ -49,12 +52,6 @@ public class AuthControllerTest {
   private static final String TEST_REFRESH_TOKEN = "refresh-token";
 
   private final ObjectMapper objectMapper = new ObjectMapper();
-
-  @BeforeEach
-  void setup() {
-    // with filter mockmvc
-    this.mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
-  }
 
   MockMvc setUpNoFilterMockMvc() {
     return MockMvcBuilders.webAppContextSetup(context)
@@ -187,5 +184,26 @@ public class AuthControllerTest {
       .andExpect(status().isOk());
 
     verify(authService, times(1)).logout(any(HttpServletRequest.class));
+  }
+
+  @Test
+  @DisplayName("logout_fail_when_token_is_invalid")
+  void logout_fail_when_token_is_invalid() throws Exception {
+    String invalidToken = "invalid-token";
+    // given: resolveToken은 토큰을 추출해줌
+    when(jwtTokenProvider.resolveToken(any(HttpServletRequest.class)))
+      .thenReturn(invalidToken);
+
+    // given: validateToken에서 예외 발생 (유효하지 않은 토큰)
+    doThrow(new AuthException(HttpStatus.UNAUTHORIZED, ErrorCode.INVALID_TOKEN))
+      .when(jwtTokenProvider).validateToken(invalidToken);
+
+    mockMvc.perform(post("/api/v1/auth/logout")
+        .header("Authorization", "Bearer " + invalidToken))
+    .andExpect(status().isUnauthorized());
+    // .andExpect(jsonPath("$.code").value("INVALID_TOKEN"));
+
+    verify(jwtTokenProvider, times(1)).validateToken(invalidToken);
+    verify(authService, times(0)).logout(any()); // ✅ 서비스 호출은 없어야 함
   }
 }
