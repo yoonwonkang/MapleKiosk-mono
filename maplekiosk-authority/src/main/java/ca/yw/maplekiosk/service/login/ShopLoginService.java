@@ -7,8 +7,6 @@ import ca.yw.maplekiosk.dto.auth.response.LoginResponse;
 import ca.yw.maplekiosk.enums.ErrorCode;
 import ca.yw.maplekiosk.enums.TokenType;
 import ca.yw.maplekiosk.exception.AuthException;
-import ca.yw.maplekiosk.model.kiosk.Kiosk;
-import ca.yw.maplekiosk.model.kiosk.KioskRepository;
 import ca.yw.maplekiosk.model.shop.Shop;
 import ca.yw.maplekiosk.model.shop.ShopRepository;
 import ca.yw.maplekiosk.provider.JwtTokenProvider;
@@ -31,8 +29,8 @@ public class ShopLoginService implements LoginService {
     if (!shop.getPassword().equals(request.getPassword()))
       throw new AuthException(HttpStatus.NOT_FOUND, ErrorCode.INVALID_PASSWORD);
 
-    String accessToken = jwtTokenProvider.generateAccessToken(request.getUsername(), TokenType.SHOP);
-    String refreshToken = jwtTokenProvider.generateRefreshToken(request.getUsername(), TokenType.SHOP);
+    String accessToken = jwtTokenProvider.generateAccessToken(shop.getShopId(), request.getUsername(), TokenType.SHOP);
+    String refreshToken = jwtTokenProvider.generateRefreshToken(shop.getShopId(), request.getUsername(), TokenType.SHOP);
 
     return LoginResponse.builder()
       .accessToken(accessToken)

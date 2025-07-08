@@ -31,8 +31,8 @@ public class KioskLoginService implements LoginService {
     if (!kiosk.getPassword().equals(request.getPassword()))
       throw new AuthException(HttpStatus.NOT_FOUND, ErrorCode.INVALID_PASSWORD);
 
-    String accessToken = jwtTokenProvider.generateAccessToken(request.getUsername(), TokenType.KIOSK);
-    String refreshToken = jwtTokenProvider.generateRefreshToken(request.getUsername(), TokenType.KIOSK);
+    String accessToken = jwtTokenProvider.generateAccessToken(kiosk.getKioskId(), request.getUsername(), TokenType.KIOSK);
+    String refreshToken = jwtTokenProvider.generateRefreshToken(kiosk.getKioskId(), request.getUsername(), TokenType.KIOSK);
 
     return LoginResponse.builder()
       .accessToken(accessToken)
