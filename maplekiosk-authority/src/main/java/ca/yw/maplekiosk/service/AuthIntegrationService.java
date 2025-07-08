@@ -3,6 +3,7 @@ package ca.yw.maplekiosk.service;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -41,10 +42,14 @@ public class AuthIntegrationService {
     jwtTokenProvider.validateToken(token); // 유효성 검사
     Claims claims = jwtTokenProvider.getClaims(token);
 
+    Long userId = Optional.ofNullable(claims.getId())
+    .map(Long::valueOf)
+    .orElseThrow(() -> new AuthException(HttpStatus.BAD_REQUEST, ErrorCode.INVALID_TOKEN));
+
     tokenBlackListRepository.save(
     TokenBlackList.createTokenBlackList(
       token,
       claims.getExpiration().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime(),
-      LocalDateTime.now(), token, TokenType.fromString(claims.get("role").toString()), Long.valueOf(claims.getId())));
+      LocalDateTime.now(), null, TokenType.fromString(claims.get("role").toString()), userId));
   }
 }
