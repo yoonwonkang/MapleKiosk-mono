@@ -13,8 +13,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -28,8 +26,7 @@ import ca.yw.maplekiosk.enums.ErrorCode;
 import ca.yw.maplekiosk.exception.AuthException;
 import ca.yw.maplekiosk.provider.JwtTokenProvider;
 import ca.yw.maplekiosk.service.AuthIntegrationService;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
+import jakarta.servlet.http.HttpServletRequest;
 
 @WebMvcTest(AuthController.class)
 @AutoConfigureMockMvc(addFilters = true)
@@ -174,5 +171,21 @@ public class AuthControllerTest {
       .andExpect(jsonPath("$.message").exists());              // 에러 메시지가 있는지만 확인
 
     verify(authService, times(0)).login(any(), any());  // 아예 서비스 호출도 안 해야 함
+  }
+
+  @Test
+  @DisplayName("logout_success_when_token_is_valid")
+  void logout_success_when_token_is_valid() throws Exception {
+    String token = "valid-token";
+
+    when(jwtTokenProvider.resolveToken(any(HttpServletRequest.class))).thenReturn(token);
+
+    doNothing().when(authService).logout(any(HttpServletRequest.class)); // optional
+
+    mockMvc.perform(post("/api/v1/auth/logout")
+        .header("Authorization", "Bearer " + token))
+      .andExpect(status().isOk());
+
+    verify(authService, times(1)).logout(any(HttpServletRequest.class));
   }
 }
