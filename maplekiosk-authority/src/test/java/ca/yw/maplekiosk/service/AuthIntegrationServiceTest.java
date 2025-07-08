@@ -27,7 +27,7 @@ public class AuthIntegrationServiceTest {
     LoginService kioskLoginService = mock(LoginService.class);
     when(kioskLoginService.supports(type)).thenReturn(true);
 
-    AuthIntegrationService authIntegrationService = new AuthIntegrationService(List.of(kioskLoginService));
+    AuthIntegrationService authIntegrationService = new AuthIntegrationService(List.of(kioskLoginService), null, null);
 
     // When
     authIntegrationService.login(type, loginRequest);
@@ -47,7 +47,7 @@ public class AuthIntegrationServiceTest {
     LoginService kioskLoginService = mock(LoginService.class);
     when(kioskLoginService.supports(anyString())).thenReturn(false);
 
-    AuthIntegrationService authIntegrationService = new AuthIntegrationService(List.of(kioskLoginService));
+    AuthIntegrationService authIntegrationService = new AuthIntegrationService(List.of(kioskLoginService), null, null);
 
     // Expect Exception
     assertThatThrownBy(() -> authIntegrationService.login(invalidType, loginRequest))
