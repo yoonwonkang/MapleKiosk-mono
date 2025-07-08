@@ -10,7 +10,8 @@ public enum ErrorCode {
   INVALID_TOKEN("AUTH", "004", "토큰이 유효하지 않습니다."),
   UNKNOWN_ERROR("AUTH", "005", "확인이 되지 않는 에러입니다."),
   INVALID_USER_TYPE("AUTH", "006", "잘못된 유저타입 접근"),
-  INVALID_REQUEST("AUTH", "007", "잘못된 요청");
+  INVALID_REQUEST("AUTH", "007", "잘못된 요청"),
+  MISSING_TOKEN("AUTH", "008", "토큰을 찾을 수 없음"),;
 
   private final String service;
   private final String code;
