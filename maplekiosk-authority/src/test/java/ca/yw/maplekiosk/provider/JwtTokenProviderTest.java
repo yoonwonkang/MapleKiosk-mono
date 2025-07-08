@@ -36,8 +36,9 @@ public class JwtTokenProviderTest {
   @Test
   void createAccessToken_shouldReturnWrongNameToken() {
     // wrong name
+    Long id = 1L;
     String wrongName = "shQp1";
-    String token = jwtTokenProvider.generateAccessToken(wrongName, ORIGIN_SHOP_ROLE);
+    String token = jwtTokenProvider.generateAccessToken(id, wrongName, ORIGIN_SHOP_ROLE);
 
     assertDoesNotThrow(() -> jwtTokenProvider.validateToken(token));
     Claims claims = jwtTokenProvider.getClaims(token);
@@ -49,8 +50,9 @@ public class JwtTokenProviderTest {
   @Test
   void createAccessToken_shouldReturnWrongRoleToken() {
     // wrong role
+    Long id = 1L;
     TokenType wrongRole = TokenType.KIOSK;
-    String token = jwtTokenProvider.generateAccessToken(ORIGIN_SHOP_USER_NAME, wrongRole);
+    String token = jwtTokenProvider.generateAccessToken(id, ORIGIN_SHOP_USER_NAME, wrongRole);
 
     assertDoesNotThrow(() -> jwtTokenProvider.validateToken(token));
     Claims claims = jwtTokenProvider.getClaims(token);
@@ -98,7 +100,8 @@ public class JwtTokenProviderTest {
 
   @Test
   void createAccessToken_shouldReturnValidToken() {
-    String token = jwtTokenProvider.generateAccessToken(ORIGIN_SHOP_USER_NAME, ORIGIN_SHOP_ROLE);
+    Long id = 1L;
+    String token = jwtTokenProvider.generateAccessToken(id, ORIGIN_SHOP_USER_NAME, ORIGIN_SHOP_ROLE);
     // assertTrue(jwtTokenProvider.validateToken(token));
     Claims claims = jwtTokenProvider.getClaims(token);
     assertEquals(ORIGIN_SHOP_USER_NAME, claims.getSubject());

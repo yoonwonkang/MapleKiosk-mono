@@ -2,7 +2,10 @@ package ca.yw.maplekiosk.controller;
 
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,8 +13,12 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -21,15 +28,16 @@ import ca.yw.maplekiosk.enums.ErrorCode;
 import ca.yw.maplekiosk.exception.AuthException;
 import ca.yw.maplekiosk.provider.JwtTokenProvider;
 import ca.yw.maplekiosk.service.AuthIntegrationService;
-
-
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
 
 @WebMvcTest(AuthController.class)
-@AutoConfigureMockMvc(addFilters = false)
+@AutoConfigureMockMvc(addFilters = true)
 public class AuthControllerTest {
+
   @Autowired
+  private WebApplicationContext context;
+
   private MockMvc mockMvc;
 
   @MockitoBean
@@ -45,9 +53,22 @@ public class AuthControllerTest {
 
   private final ObjectMapper objectMapper = new ObjectMapper();
 
+  @BeforeEach
+  void setup() {
+    // with filter mockmvc
+    this.mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
+  }
+
+  MockMvc setUpNoFilterMockMvc() {
+    return MockMvcBuilders.webAppContextSetup(context)
+    .addFilters() // without filter
+    .build();
+  }
+
   @Test
   @DisplayName("fail_login_when_user_not_found")
   void login_fail_user_not_found() throws Exception {
+    MockMvc withoutFilterMockMvc = setUpNoFilterMockMvc();
     // Give correct type
     String type = "KIOSK";
     // Given wrong user name
@@ -57,7 +78,7 @@ public class AuthControllerTest {
         .thenThrow(new AuthException(HttpStatus.NOT_FOUND, ErrorCode.USER_NOT_FOUND));
 
     // When & Then
-    mockMvc.perform(post("/api/v1/auth/login/"+type)
+    withoutFilterMockMvc.perform(post("/api/v1/auth/login/"+type)
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(loginRequest)))
         .andExpect(status().isNotFound());
@@ -70,6 +91,7 @@ public class AuthControllerTest {
   @Test
   @DisplayName("fail_login_when_user_type_invalid")
   void login_fail_user_type_invalid() throws Exception {
+    MockMvc withoutFilterMockMvc = setUpNoFilterMockMvc();
     // Give wrong type
     String wrongType = "WRONG";
     LoginRequest loginRequest = new LoginRequest("user", "password");
@@ -78,7 +100,7 @@ public class AuthControllerTest {
         .thenThrow(new AuthException(HttpStatus.BAD_REQUEST, ErrorCode.INVALID_USER_TYPE));
 
     // When & Then
-    mockMvc.perform(post("/api/v1/auth/login/"+wrongType)
+    withoutFilterMockMvc.perform(post("/api/v1/auth/login/"+wrongType)
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(loginRequest)))
         .andExpect(status().isBadRequest());
@@ -91,6 +113,7 @@ public class AuthControllerTest {
   @Test
   @DisplayName("fail_login_when_password_invalid")
   void login_fail_password_invalid() throws Exception {
+    MockMvc withoutFilterMockMvc = setUpNoFilterMockMvc();
     // Given
     String type = "KIOSK";
     LoginRequest loginRequest = new LoginRequest("user", "wrongPassword");
@@ -99,7 +122,7 @@ public class AuthControllerTest {
     .thenThrow(new AuthException(HttpStatus.NOT_FOUND, ErrorCode.INVALID_PASSWORD));
 
     // When & Then
-    mockMvc.perform(post("/api/v1/auth/login/"+type)
+    withoutFilterMockMvc.perform(post("/api/v1/auth/login/"+type)
         .contentType(MediaType.APPLICATION_JSON)
         .content(objectMapper.writeValueAsString(loginRequest)))
     .andExpect(status().isNotFound());
@@ -112,36 +135,38 @@ public class AuthControllerTest {
   @Test
   @DisplayName("success_login")
   void login_success() throws Exception {
+    MockMvc withoutFilterMockMvc = setUpNoFilterMockMvc();
       // Given Valid Data
-      String type = "KIOSK";
-      LoginRequest loginRequest = new LoginRequest(USER_NAME, USER_PASS);
-      LoginResponse loginResponse = LoginResponse.builder()
-        .accessToken(TEST_ACCESS_TOKEN).refreshToken(TEST_REFRESH_TOKEN)
-      .build();
+    String type = "KIOSK";
+    LoginRequest loginRequest = new LoginRequest(USER_NAME, USER_PASS);
+    LoginResponse loginResponse = LoginResponse.builder()
+      .accessToken(TEST_ACCESS_TOKEN).refreshToken(TEST_REFRESH_TOKEN)
+    .build();
 
-      when(authService.login(eq(type), any(LoginRequest.class)))
-          .thenReturn(loginResponse);
+    when(authService.login(eq(type), any(LoginRequest.class)))
+        .thenReturn(loginResponse);
 
-      // When expect success
-      mockMvc.perform(post("/api/v1/auth/login/"+type)
-                      .contentType(MediaType.APPLICATION_JSON)
-                      .content(objectMapper.writeValueAsString(loginRequest)))
-              .andExpect(status().isOk())
-              .andExpect(jsonPath("$.accessToken").value(TEST_ACCESS_TOKEN))
-              .andExpect(jsonPath("$.refreshToken").value(TEST_REFRESH_TOKEN));
+    // When expect success
+    withoutFilterMockMvc.perform(post("/api/v1/auth/login/"+type)
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(objectMapper.writeValueAsString(loginRequest)))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.accessToken").value(TEST_ACCESS_TOKEN))
+      .andExpect(jsonPath("$.refreshToken").value(TEST_REFRESH_TOKEN));
 
-      verify(authService, times(1)).login(eq(type), any(LoginRequest.class));
+    verify(authService, times(1)).login(eq(type), any(LoginRequest.class));
   }
 
   @Test
   @DisplayName("fail_login_when_request_is_invalid")
   void login_fail_when_request_is_invalid() throws Exception {
+    MockMvc withoutFilterMockMvc = setUpNoFilterMockMvc();
     // Given: empty user name;
     String type = "KIOSK";
     LoginRequest loginRequest = new LoginRequest("", USER_PASS);
 
     // When & Then: 요청 실패를 기대
-    mockMvc.perform(post("/api/v1/auth/login/" + type)
+    withoutFilterMockMvc.perform(post("/api/v1/auth/login/" + type)
         .contentType(MediaType.APPLICATION_JSON)
         .content(objectMapper.writeValueAsString(loginRequest)))
       .andExpect(status().isBadRequest())
