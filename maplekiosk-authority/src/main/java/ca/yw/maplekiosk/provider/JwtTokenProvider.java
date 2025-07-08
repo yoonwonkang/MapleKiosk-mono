@@ -21,6 +21,7 @@ import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
+import jakarta.servlet.http.HttpServletRequest;
 
 @Component
 public class JwtTokenProvider {
@@ -42,9 +43,10 @@ public class JwtTokenProvider {
     return Keys.hmacShaKeyFor(jwtConfig.getSecret().getBytes(StandardCharsets.UTF_8));
   }
 
-  public String generateToken(String username, TokenType tokenType, long expirationSeconds) {
+  public String generateToken(Long id, String username, TokenType tokenType, long expirationSeconds) {
     return Jwts.builder()
         .setSubject(username)
+        .setId(id.toString())
         .claim("role", tokenType.name())
         .setIssuedAt(new Date())
         .setExpiration(new Date(System.currentTimeMillis() + expirationSeconds * MILLISECONDS_PER_SECOND))
@@ -52,12 +54,12 @@ public class JwtTokenProvider {
         .compact();
 }
 
-  public String generateAccessToken(String username, TokenType tokenType) {
-    return generateToken(username, tokenType, jwtConfig.getAccessTokenExpirationSeconds());
+  public String generateAccessToken(Long id, String username, TokenType tokenType) {
+    return generateToken(id, username, tokenType, jwtConfig.getAccessTokenExpirationSeconds());
   }
 
-  public String generateRefreshToken(String username, TokenType tokenType) {
-    return generateToken(username, tokenType, jwtConfig.getRefreshTokenExpirationSeconds());
+  public String generateRefreshToken(Long id, String username, TokenType tokenType) {
+    return generateToken(id, username, tokenType, jwtConfig.getRefreshTokenExpirationSeconds());
   }
 
   public void validateToken(String token) {
@@ -78,5 +80,13 @@ public class JwtTokenProvider {
     return Jwts.parserBuilder()
       .setSigningKey(key).build()
       .parseClaimsJws(token).getBody();
+  }
+
+  public String resolveToken(HttpServletRequest request) {
+    String bearerToken = request.getHeader("Authorization");
+    if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
+      return bearerToken.substring(7);
+    }
+    return null;
   }
 }
