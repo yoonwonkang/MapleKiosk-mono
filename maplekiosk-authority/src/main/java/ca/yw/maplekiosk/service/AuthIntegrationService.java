@@ -5,6 +5,8 @@ import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +26,9 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class AuthIntegrationService {
+
+  private static final Logger log = LogManager.getLogger(AuthIntegrationService.class);
+
   private final List<LoginService> loginServices;
   private final JwtTokenProvider jwtTokenProvider;
   private final TokenBlackListRepository tokenBlackListRepository;
