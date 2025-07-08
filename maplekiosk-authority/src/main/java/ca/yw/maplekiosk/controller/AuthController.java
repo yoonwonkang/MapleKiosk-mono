@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import ca.yw.maplekiosk.dto.auth.request.LoginRequest;
 import ca.yw.maplekiosk.dto.auth.response.LoginResponse;
 import ca.yw.maplekiosk.service.AuthIntegrationService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -24,4 +25,11 @@ public class AuthController {
   public ResponseEntity<LoginResponse> login(@RequestBody @Valid LoginRequest loginRequest, @PathVariable String type) {
     return ResponseEntity.ok(authService.login(type, loginRequest));
   }
+
+  @PostMapping("logout")
+  public ResponseEntity<Void> logout(HttpServletRequest request) {
+    authService.logout(request);
+    return ResponseEntity.ok().build();
+  }
+
 }
