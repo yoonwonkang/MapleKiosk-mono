@@ -78,6 +78,6 @@ public class AuthIntegrationService {
 
     String newAccessToken = jwtTokenProvider.generateAccessToken(userId, username, RoleType.fromString(type));
 
-    return new RefreshResponse(newAccessToken);
+    return RefreshResponse.builder().accessToken(newAccessToken).build();
   }
 }

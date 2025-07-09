@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import ca.yw.maplekiosk.dto.auth.request.LoginRequest;
 import ca.yw.maplekiosk.dto.auth.response.LoginResponse;
+import ca.yw.maplekiosk.dto.auth.response.RefreshResponse;
 import ca.yw.maplekiosk.service.AuthIntegrationService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
