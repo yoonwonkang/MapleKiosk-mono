@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 import ca.yw.maplekiosk.dto.auth.request.LoginRequest;
 import ca.yw.maplekiosk.dto.auth.response.LoginResponse;
 import ca.yw.maplekiosk.enums.ErrorCode;
-import ca.yw.maplekiosk.enums.TokenType;
+import ca.yw.maplekiosk.enums.RoleType;
 import ca.yw.maplekiosk.exception.AuthException;
 import ca.yw.maplekiosk.model.kiosk.Kiosk;
 import ca.yw.maplekiosk.model.kiosk.KioskRepository;
@@ -74,8 +74,8 @@ public class KioskLoginServiceTest {
     Kiosk kiosk = Kiosk.createKiosk(null, username, password);
 
     when(kioskRepository.findByKioskName(username)).thenReturn(Optional.of(kiosk));
-    when(jwtTokenProvider.generateAccessToken(kiosk.getKioskId(), username, TokenType.KIOSK)).thenReturn(accessToken);
-    when(jwtTokenProvider.generateRefreshToken(kiosk.getKioskId(), username, TokenType.KIOSK)).thenReturn(refreshToken);
+    when(jwtTokenProvider.generateAccessToken(kiosk.getKioskId(), username, RoleType.KIOSK)).thenReturn(accessToken);
+    when(jwtTokenProvider.generateRefreshToken(kiosk.getKioskId(), username, RoleType.KIOSK)).thenReturn(refreshToken);
 
     // When
     LoginResponse response = kioskLoginService.login(request);
@@ -85,8 +85,8 @@ public class KioskLoginServiceTest {
     assertThat(response.getRefreshToken()).isEqualTo(refreshToken);
 
     verify(kioskRepository, times(1)).findByKioskName(username);
-    verify(jwtTokenProvider, times(1)).generateAccessToken(kiosk.getKioskId(), username, TokenType.KIOSK);
-    verify(jwtTokenProvider, times(1)).generateRefreshToken(kiosk.getKioskId(), username, TokenType.KIOSK);
+    verify(jwtTokenProvider, times(1)).generateAccessToken(kiosk.getKioskId(), username, RoleType.KIOSK);
+    verify(jwtTokenProvider, times(1)).generateRefreshToken(kiosk.getKioskId(), username, RoleType.KIOSK);
   }
 
 }

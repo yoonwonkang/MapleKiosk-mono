@@ -10,7 +10,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import ca.yw.maplekiosk.config.JwtConfig;
-import ca.yw.maplekiosk.enums.TokenType;
+import ca.yw.maplekiosk.enums.RoleType;
 import ca.yw.maplekiosk.exception.AuthException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -20,7 +20,7 @@ import io.jsonwebtoken.security.Keys;
 public class JwtTokenProviderTest {
 
   private static final String ORIGIN_SHOP_USER_NAME =  "shop01";
-  private static final TokenType ORIGIN_SHOP_ROLE = TokenType.SHOP;
+  private static final RoleType ORIGIN_SHOP_ROLE = RoleType.SHOP;
   private JwtTokenProvider jwtTokenProvider;
   private static final String TEST_SECRET_KEY = "this-is-a-very-secure-and-long-secret-key-1234567890";
 
@@ -51,7 +51,7 @@ public class JwtTokenProviderTest {
   void createAccessToken_shouldReturnWrongRoleToken() {
     // wrong role
     Long id = 1L;
-    TokenType wrongRole = TokenType.KIOSK;
+    RoleType wrongRole = RoleType.KIOSK;
     String token = jwtTokenProvider.generateAccessToken(id, ORIGIN_SHOP_USER_NAME, wrongRole);
 
     assertDoesNotThrow(() -> jwtTokenProvider.validateToken(token));

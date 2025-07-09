@@ -12,8 +12,9 @@ import org.springframework.stereotype.Service;
 
 import ca.yw.maplekiosk.dto.auth.request.LoginRequest;
 import ca.yw.maplekiosk.dto.auth.response.LoginResponse;
+import ca.yw.maplekiosk.dto.auth.response.RefreshResponse;
 import ca.yw.maplekiosk.enums.ErrorCode;
-import ca.yw.maplekiosk.enums.TokenType;
+import ca.yw.maplekiosk.enums.RoleType;
 import ca.yw.maplekiosk.exception.AuthException;
 import ca.yw.maplekiosk.model.token.TokenBlackList;
 import ca.yw.maplekiosk.model.token.TokenBlackListRepository;
@@ -55,6 +56,28 @@ public class AuthIntegrationService {
     TokenBlackList.createTokenBlackList(
       token,
       claims.getExpiration().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime(),
-      LocalDateTime.now(), null, TokenType.fromString(claims.get("role").toString()), userId));
+      LocalDateTime.now(), null, RoleType.fromString(claims.get("role").toString()), userId));
+  }
+
+  public RefreshResponse refresh(HttpServletRequest request) {
+    String token = jwtTokenProvider.resolveToken(request);
+    jwtTokenProvider.validateToken(token);
+    Claims claims = jwtTokenProvider.getClaims(token);
+
+    // 토큰 타입 확인
+    if (!claims.get("tokenType").equals("REFRESH"))
+        throw new AuthException(HttpStatus.BAD_REQUEST, ErrorCode.INVALID_TOKEN);
+
+    // 블랙리스트 확인 생략 or 적용
+
+    String username = claims.getSubject();
+    String type = claims.get("role").toString();
+    Long userId = Optional.ofNullable(claims.getId())
+      .map(Long::valueOf)
+      .orElseThrow(() -> new AuthException(HttpStatus.BAD_REQUEST, ErrorCode.INVALID_TOKEN));
+
+    String newAccessToken = jwtTokenProvider.generateAccessToken(userId, username, RoleType.fromString(type));
+
+    return new RefreshResponse(newAccessToken);
   }
 }

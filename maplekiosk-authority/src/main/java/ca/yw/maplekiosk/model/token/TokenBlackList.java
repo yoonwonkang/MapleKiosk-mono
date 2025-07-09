@@ -2,7 +2,7 @@ package ca.yw.maplekiosk.model.token;
 
 import java.time.LocalDateTime;
 
-import ca.yw.maplekiosk.enums.TokenType;
+import ca.yw.maplekiosk.enums.RoleType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -31,11 +31,11 @@ public class TokenBlackList {
     private String reason; // "logout", "manual", "compromised"
 
     @Enumerated(EnumType.STRING)
-    private TokenType tokenType; // ACCESS, REFRESH
+    private RoleType tokenType; // ACCESS, REFRESH
 
     private Long ownerId; // Optional: admin_id, shop_id 등
 
-    private TokenBlackList(String token, LocalDateTime expiredAt, LocalDateTime createdAt, String reason, TokenType tokenType, Long ownerId) {
+    private TokenBlackList(String token, LocalDateTime expiredAt, LocalDateTime createdAt, String reason, RoleType tokenType, Long ownerId) {
       this.token = token;
       this.expiredAt = expiredAt;
       this.createdAt = createdAt;
@@ -44,7 +44,7 @@ public class TokenBlackList {
       this.ownerId = ownerId;
     }
 
-    public static TokenBlackList createTokenBlackList(String token, LocalDateTime expiredAt, LocalDateTime createdAt, String reason, TokenType tokenType, Long ownerId) {
+    public static TokenBlackList createTokenBlackList(String token, LocalDateTime expiredAt, LocalDateTime createdAt, String reason, RoleType tokenType, Long ownerId) {
       return new TokenBlackList(token, expiredAt, createdAt, reason, tokenType, ownerId);
     }
 }

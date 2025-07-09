@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import ca.yw.maplekiosk.dto.auth.request.LoginRequest;
 import ca.yw.maplekiosk.dto.auth.response.LoginResponse;
 import ca.yw.maplekiosk.enums.ErrorCode;
-import ca.yw.maplekiosk.enums.TokenType;
+import ca.yw.maplekiosk.enums.RoleType;
 import ca.yw.maplekiosk.exception.AuthException;
 import ca.yw.maplekiosk.model.kiosk.Kiosk;
 import ca.yw.maplekiosk.model.kiosk.KioskRepository;
@@ -31,8 +31,8 @@ public class KioskLoginService implements LoginService {
     if (!kiosk.getPassword().equals(request.getPassword()))
       throw new AuthException(HttpStatus.NOT_FOUND, ErrorCode.INVALID_PASSWORD);
 
-    String accessToken = jwtTokenProvider.generateAccessToken(kiosk.getKioskId(), request.getUsername(), TokenType.KIOSK);
-    String refreshToken = jwtTokenProvider.generateRefreshToken(kiosk.getKioskId(), request.getUsername(), TokenType.KIOSK);
+    String accessToken = jwtTokenProvider.generateAccessToken(kiosk.getKioskId(), request.getUsername(), RoleType.KIOSK);
+    String refreshToken = jwtTokenProvider.generateRefreshToken(kiosk.getKioskId(), request.getUsername(), RoleType.KIOSK);
 
     return LoginResponse.builder()
       .accessToken(accessToken)
@@ -42,7 +42,7 @@ public class KioskLoginService implements LoginService {
 
   @Override
   public boolean supports(String type) {
-    return TokenType.KIOSK.name().equalsIgnoreCase(type);
+    return RoleType.KIOSK.name().equalsIgnoreCase(type);
   }
 
 }

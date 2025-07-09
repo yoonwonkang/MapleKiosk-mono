@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 import ca.yw.maplekiosk.dto.auth.request.LoginRequest;
 import ca.yw.maplekiosk.dto.auth.response.LoginResponse;
 import ca.yw.maplekiosk.enums.ErrorCode;
-import ca.yw.maplekiosk.enums.TokenType;
+import ca.yw.maplekiosk.enums.RoleType;
 import ca.yw.maplekiosk.exception.AuthException;
 import ca.yw.maplekiosk.model.shop.Shop;
 import ca.yw.maplekiosk.model.shop.ShopRepository;
@@ -74,8 +74,8 @@ public class ShopLoginServiceTest {
     Shop shop = Shop.createShop(username, password, "test");
 
     when(shopRepository.findByShopName(username)).thenReturn(Optional.of(shop));
-    when(jwtTokenProvider.generateAccessToken(shop.getShopId(), username, TokenType.SHOP)).thenReturn(accessToken);
-    when(jwtTokenProvider.generateRefreshToken(shop.getShopId(), username, TokenType.SHOP)).thenReturn(refreshToken);
+    when(jwtTokenProvider.generateAccessToken(shop.getShopId(), username, RoleType.SHOP)).thenReturn(accessToken);
+    when(jwtTokenProvider.generateRefreshToken(shop.getShopId(), username, RoleType.SHOP)).thenReturn(refreshToken);
 
     // When
     LoginResponse response = shopLoginService.login(request);
@@ -85,8 +85,8 @@ public class ShopLoginServiceTest {
     assertThat(response.getRefreshToken()).isEqualTo(refreshToken);
 
     verify(shopRepository, times(1)).findByShopName(username);
-    verify(jwtTokenProvider, times(1)).generateAccessToken(shop.getShopId(), username, TokenType.SHOP);
-    verify(jwtTokenProvider, times(1)).generateRefreshToken(shop.getShopId(), username, TokenType.SHOP);
+    verify(jwtTokenProvider, times(1)).generateAccessToken(shop.getShopId(), username, RoleType.SHOP);
+    verify(jwtTokenProvider, times(1)).generateRefreshToken(shop.getShopId(), username, RoleType.SHOP);
   }
 
 }

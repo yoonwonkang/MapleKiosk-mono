@@ -5,7 +5,7 @@ import org.springframework.http.HttpStatus;
 import ca.yw.maplekiosk.dto.auth.request.LoginRequest;
 import ca.yw.maplekiosk.dto.auth.response.LoginResponse;
 import ca.yw.maplekiosk.enums.ErrorCode;
-import ca.yw.maplekiosk.enums.TokenType;
+import ca.yw.maplekiosk.enums.RoleType;
 import ca.yw.maplekiosk.exception.AuthException;
 import ca.yw.maplekiosk.model.shop.Shop;
 import ca.yw.maplekiosk.model.shop.ShopRepository;
@@ -29,8 +29,8 @@ public class ShopLoginService implements LoginService {
     if (!shop.getPassword().equals(request.getPassword()))
       throw new AuthException(HttpStatus.NOT_FOUND, ErrorCode.INVALID_PASSWORD);
 
-    String accessToken = jwtTokenProvider.generateAccessToken(shop.getShopId(), request.getUsername(), TokenType.SHOP);
-    String refreshToken = jwtTokenProvider.generateRefreshToken(shop.getShopId(), request.getUsername(), TokenType.SHOP);
+    String accessToken = jwtTokenProvider.generateAccessToken(shop.getShopId(), request.getUsername(), RoleType.SHOP);
+    String refreshToken = jwtTokenProvider.generateRefreshToken(shop.getShopId(), request.getUsername(), RoleType.SHOP);
 
     return LoginResponse.builder()
       .accessToken(accessToken)
@@ -40,6 +40,6 @@ public class ShopLoginService implements LoginService {
 
 		@Override
 		public boolean supports(String type) {
-      return TokenType.SHOP.name().equalsIgnoreCase(type);
+      return RoleType.SHOP.name().equalsIgnoreCase(type);
 		}
 }

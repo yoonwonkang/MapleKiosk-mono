@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 
 import ca.yw.maplekiosk.config.JwtConfig;
 import ca.yw.maplekiosk.enums.ErrorCode;
-import ca.yw.maplekiosk.enums.TokenType;
+import ca.yw.maplekiosk.enums.RoleType;
 import ca.yw.maplekiosk.exception.AuthException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -43,7 +43,7 @@ public class JwtTokenProvider {
     return Keys.hmacShaKeyFor(jwtConfig.getSecret().getBytes(StandardCharsets.UTF_8));
   }
 
-  public String generateToken(Long id, String username, TokenType tokenType, long expirationSeconds) {
+  public String generateToken(Long id, String username, RoleType tokenType, long expirationSeconds) {
     return Jwts.builder()
         .setSubject(username)
         .setId(id.toString())
@@ -54,11 +54,11 @@ public class JwtTokenProvider {
         .compact();
 }
 
-  public String generateAccessToken(Long id, String username, TokenType tokenType) {
+  public String generateAccessToken(Long id, String username, RoleType tokenType) {
     return generateToken(id, username, tokenType, jwtConfig.getAccessTokenExpirationSeconds());
   }
 
-  public String generateRefreshToken(Long id, String username, TokenType tokenType) {
+  public String generateRefreshToken(Long id, String username, RoleType tokenType) {
     return generateToken(id, username, tokenType, jwtConfig.getRefreshTokenExpirationSeconds());
   }
 
