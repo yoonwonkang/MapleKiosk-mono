@@ -49,6 +49,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
         SecurityContextHolder.getContext().setAuthentication(authentication);
         filterChain.doFilter(request, response);
+        return;
       }
       throw new AuthException(HttpStatus.BAD_REQUEST, ErrorCode.MISSING_TOKEN);
     } catch (AuthException e) {
