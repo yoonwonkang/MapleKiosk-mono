@@ -5,6 +5,9 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import java.time.Instant;
+import java.util.Date;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,15 +21,21 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import ca.yw.maplekiosk.config.SpringSecurityConfig;
 import ca.yw.maplekiosk.dto.auth.request.LoginRequest;
 import ca.yw.maplekiosk.dto.auth.response.LoginResponse;
+import ca.yw.maplekiosk.dto.auth.response.RefreshResponse;
 import ca.yw.maplekiosk.enums.ErrorCode;
+import ca.yw.maplekiosk.enums.RoleType;
 import ca.yw.maplekiosk.exception.AuthException;
 import ca.yw.maplekiosk.provider.JwtTokenProvider;
 import ca.yw.maplekiosk.service.AuthIntegrationService;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
 import jakarta.servlet.http.HttpServletRequest;
 
 @WebMvcTest(AuthController.class)
@@ -205,5 +214,46 @@ public class AuthControllerTest {
 
     verify(jwtTokenProvider, times(1)).validateToken(invalidToken);
     verify(authService, times(0)).logout(any()); // ✅ 서비스 호출은 없어야 함
+  }
+  @Test
+  @DisplayName("success_when_refresh_token_is_valid")
+  void success_when_refresh_token_is_valid() throws Exception {
+    String refreshToken = "valid-refresh-token";
+    String newAccessToken = "new-access-token";
+    String id = "123";
+
+    // given: resolveToken 은 요청에서 토큰 추출
+    when(jwtTokenProvider.resolveToken(any(HttpServletRequest.class)))
+      .thenReturn(refreshToken);
+
+    // given: validateToken은 예외 없이 성공
+    doNothing().when(jwtTokenProvider).validateToken(refreshToken);
+
+       // given: resolveToken 은 요청에서 토큰 추출
+    when(authService.refresh(any(HttpServletRequest.class)))
+    .thenReturn(RefreshResponse.builder().accessToken(newAccessToken).build());
+
+    // given: getClaims는 유효한 Refresh Token의 Claims 반환
+    Claims claims = Jwts.claims().setSubject("testUser");
+    claims.setExpiration(Date.from(Instant.now().plusSeconds(3600)));
+    claims.setId(id);
+    claims.put("tokenType", "REFRESH");
+    claims.put("role", "KIOSK");
+
+    when(jwtTokenProvider.getClaims(refreshToken)).thenReturn(claims);
+
+    // given: 새로운 Access Token 생성
+    when(jwtTokenProvider.generateAccessToken(Long.valueOf(id), "testUser", RoleType.KIOSK))
+        .thenReturn(newAccessToken);
+
+    // when & then
+    mockMvc.perform(post("/api/v1/auth/refresh")
+            .header("Authorization", "Bearer " + refreshToken))
+        .andDo(print())
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.accessToken").value(newAccessToken));
+
+    verify(jwtTokenProvider, times(1)).validateToken(refreshToken);
+    verify(jwtTokenProvider, times(1)).getClaims(refreshToken);
   }
 }
